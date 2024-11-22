@@ -14,16 +14,19 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: _appBar(context),
       body: SafeArea(
-        child: Obx(
-          () => Column(
+        child: Obx(() {
+          if(assetController.coinData.isEmpty){
+            return Center(child: CircularProgressIndicator());
+          }
+          return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               portfolioValue(context),
               trackedAsset(context),
             ],
-          ),
-        ),
+          );
+        }),
       ),
     );
   }
@@ -92,17 +95,21 @@ class HomeScreen extends StatelessWidget {
               itemBuilder: (context, index) {
                 final coin = assetController.trackedAssets[index];
                 final data = assetController.coinData
-                    .firstWhere((e) => e.name == coin.name);
+                    .firstWhereOrNull((e) => e.name == coin.name);
                 return ListTile(
                   leading: Image.network(
-                      "https://github.com/ErikThiart/cryptocurrency-icons/blob/master/128/ethereum.png"),
+                      "https://raw.githubusercontent.com/ErikThiart/cryptocurrency-icons/master/128/${assetController.trackedAssets[index].name!.toLowerCase()}.png"),
                   title: Text(assetController.trackedAssets[index].name!),
                   subtitle: Text(
-                    "USD: ${assetController.getAssetPrice(data.name!) * assetController.trackedAssets[index].amount!.toDouble()}",
+                    "USD: ${assetController.getAssetPrice(data!.name!) * assetController.trackedAssets[index].amount!.toDouble()}",
                   ),
                   trailing:
                       Text("${assetController.trackedAssets[index].amount}"),
-                  onTap: () => Get.to(DetailsScreen(coin: assetController.getCoinData(data.name!))),
+                  onTap: () => Get.to(
+                    DetailsScreen(
+                      coin: assetController.getCoinData(data.name!),
+                    ),
+                  ),
                 );
               },
             ),

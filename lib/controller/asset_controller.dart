@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:myapp/models/api_response.dart';
 import 'package:myapp/models/coin_data.dart';
 import 'package:myapp/models/tracked_asset.dart';
 import 'package:myapp/services/http_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AssetController extends GetxController {
   RxList<CoinData> coinData = <CoinData>[].obs;
@@ -13,16 +16,24 @@ class AssetController extends GetxController {
   void onInit() {
     super.onInit();
     _getAssets();
-    print(trackedAssets);
+    loadSharedPref();
   }
 
-  void addTrackedAsset(String name, double amount) {
+  void addTrackedAsset(String name, double amount) async {
     trackedAssets.add(TrackedAsset(name: name, amount: amount));
-    print(trackedAssets);
+    List<String> data = trackedAssets.map((e)=> jsonEncode(e)).toList();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setStringList("tracked_assets", data);
   }
 
-  void showList() {
-    print(trackedAssets);
+  Future<void> loadSharedPref() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? data = prefs.getStringList("tracked_assets");
+    if(data!=null){
+      trackedAssets.value = data.map((e){
+        return TrackedAsset.fromJson(jsonDecode(e));
+      }).toList();
+    }
   }
 
   Future<void> _getAssets() async {

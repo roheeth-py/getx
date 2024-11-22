@@ -43,6 +43,7 @@ class AddAssetsDialog extends StatelessWidget {
       () {
         return Center(
           child: Material(
+            borderRadius: BorderRadius.circular(25),
             clipBehavior: Clip.hardEdge,
             child: Container(
               padding: const EdgeInsets.all(15),
@@ -50,7 +51,6 @@ class AddAssetsDialog extends StatelessWidget {
               width: MediaQuery.sizeOf(context).width * 0.8,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(25),
               ),
               child: _buildUI(context),
             ),
@@ -67,13 +67,27 @@ class AddAssetsDialog extends StatelessWidget {
       );
     } else {
       return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           DropdownButton(
+            isExpanded: true,
+            padding: EdgeInsets.symmetric(horizontal: 20),
             value: controller.selectedAsset.value,
+            borderRadius: BorderRadius.circular(25),
             items: controller.assets.map((e) {
               return DropdownMenuItem(
                 value: e,
-                child: Text(e),
+                child: Row(
+                  children: [
+                    Text(e),
+                    Spacer(),
+                    Image.network("https://raw.githubusercontent.com/ErikThiart/cryptocurrency-icons/master/16/${e.toLowerCase()}.png",
+                        width: 18,
+                        errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                          return Icon(Icons.error, size: 18); // Fallback widget
+                        },),
+                  ],
+                ),
               );
             }).toList(),
             onChanged: (value) {
@@ -88,7 +102,7 @@ class AddAssetsDialog extends StatelessWidget {
             },
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(
-              border: OutlineInputBorder(),
+              border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
             ),
           ),
           TextButton(
